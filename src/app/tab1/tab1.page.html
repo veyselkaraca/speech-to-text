@@ -12,6 +12,9 @@
       <ion-title size="large">Tab 1</ion-title>
     </ion-toolbar>
   </ion-header>
-
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  
+    <ion-item style="bottom: 0px;position: fixed;">
+      <ion-input clearInput placeholder="Enter Message" style="color: antiquewhite;"></ion-input>
+      <button (click)="alert()"><ion-icon name="mic" slot="end"></ion-icon></button>
+  </ion-item>
 </ion-content>
