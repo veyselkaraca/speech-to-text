@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'spech-to-text',
+  appName: 'speech-to-text',
   webDir: 'www',
   bundledWebRuntime: false
 };

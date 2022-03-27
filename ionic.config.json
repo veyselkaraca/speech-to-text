@@ -1,5 +1,5 @@
 {
-  "name": "spech-to-text",
+  "name": "speech-to-text",
   "integrations": {
     "capacitor": {}
   },
