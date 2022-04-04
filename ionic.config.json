@@ -1,7 +1,7 @@
 {
-  "name": "speech-to-text",
+  "name": "chat-front",
   "integrations": {
-    "capacitor": {}
+    "cordova": {}
   },
   "type": "angular"
 }
