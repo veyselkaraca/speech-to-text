@@ -8,10 +8,12 @@
       <form [formGroup]="loginForm" (ngSubmit)="login()">
         <ion-list>
           <ion-item>
+            <!-- email girişi yapılan kısım -->
             <ion-label position="stacked">Email</ion-label>
             <ion-input type="email" formControlName="email"></ion-input>
           </ion-item>
           <ion-item>
+            <!-- şifre girişi yapılan kısım -->
             <ion-label position="stacked">Password</ion-label>
             <ion-input type="password" formControlName="password"></ion-input>
           </ion-item>

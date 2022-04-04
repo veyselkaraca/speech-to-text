@@ -13,12 +13,15 @@
     <div *ngFor="let message of messages" class="message" [class.right]=" message.userIsSender === true">
       <div class="msg-detail">
         <div class="msg-info">
+          <!-- Mesaj gönderenin adı -->
           <p> {{message.senderFullName}}</p>
         </div>
         <div class="msg-content">
+          <!-- mesaj -->
           <p>{{message.message}}</p>
         </div>
       </div>
+      <!-- mesajın durumu gönderiliyor, gönderildi, görüldü -->
       <div *ngIf="message.userIsSender" class="msg-status">
         <div *ngIf="message.status === 'pending';else sent">
           pending
@@ -43,11 +46,14 @@
 </ion-content>
 <ion-footer>
   <ion-item lines="none">
+    <!-- messajın yazıldığı kısım -->
     <ion-textarea #chatInput maxlength="140" [(ngModel)]="editorMsg" (focusin)="onFocus()" clearInput=true>
     </ion-textarea>
+    <!-- mesaj gönderme butonu -->
     <ion-button class="send-button" size="large" fill="clear" (click)='sendMessage()' slot="end">
       <ion-icon name="ios-send" ios="ios-send" md="md-send"></ion-icon>
     </ion-button>
+    <!-- sesli mesaj gönderme butonu -->
     <ion-button class="send-button" size="large" fill="clear" (click)='sendMessage()' slot="end">
       <ion-icon name="ios-mic" ios="ios-mic" md="md-mic"></ion-icon>
     </ion-button>
