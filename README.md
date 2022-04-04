@@ -8,6 +8,10 @@ then you must install the dependencies
 ```bash
 npm install
 ```
+And
+```bash
+npm i -g ionic
+```
 ## Runnig the app
 You can change the global variable environement in src/app/services/url.service.ts value either to 'dev' to
 connect to test server or 'local' to connect to running local backend
@@ -19,6 +23,3 @@ Or
 ```bash
 ionic serve --lab
 ```
-
-
-

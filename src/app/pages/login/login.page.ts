@@ -43,7 +43,7 @@ export class LoginPage {
     const email: string = this.loginForm.value.email;
     const password: string = this.loginForm.value.password;
     // this.userService.login(email, password).subscribe(
-      if(email==="vkaraca@gmail.com"&&password==="vkaraca")
+      if(email==="msamet0662@gmail.com"&&password==="msamet")
       {
         localStorage.setItem('chatToken', "token");
         localStorage.setItem('user', JSON.stringify("res.user"));
