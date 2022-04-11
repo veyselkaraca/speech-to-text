@@ -13,9 +13,11 @@ export class ConversationService {
     private http: HttpClient,
   ) { }
 
-  sendMessage(input: any){
+  sendMessage(input: string){
     const params = {
-        input
+        inputs:{
+          text:input
+        }
     };
     return this.http.post<any>(`https://api-inference.huggingface.co/models/r3dhummingbird/DialoGPT-medium-joshua`, params,);
   }
