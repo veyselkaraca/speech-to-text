@@ -2,19 +2,11 @@ import { User } from './user';
 
 export class Message {
   _id?: string;
-  conversationId?: string;
-  senderId?: string;
   sender?: User;
-  senderFullName?: string;
-  receiversIds?: string[];
-  receivers?: Array<{
-    receiverId: string,
-    isRead: boolean,
-  }>;
+  reciver?:User;
   message?: string;
-  userIsSender?: boolean;
-  isRead?: boolean;
+  type:'text'|'audio';
   status?: 'pending' | 'sent' | 'seen';
-  purchaseId?: number;
   createdAt?: Date;
+  userIsSender?: boolean;
 }

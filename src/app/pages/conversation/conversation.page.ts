@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Message } from 'src/app/models/message';
 import { SocketProvider } from 'src/app/services/socket-provider';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, AlertController, Platform } from '@ionic/angular';
 import { ConversationService } from './conversation.service';
-
+import { SpeechRecognition } from '@ionic-native/speech-recognition';
+import { TextToSpeech } from '@ionic-native/text-to-speech';
+import { User } from 'src/app/models/user';
 @Component({
   selector: 'app-conversation',
   templateUrl: './conversation.page.html',
@@ -14,22 +16,24 @@ export class ConversationPage implements OnInit, OnDestroy {
   @ViewChild('chatInput', { static: true }) messageInput: ElementRef;
   messages: Message[];
   conversationId: string;
-  receiverFullName: string="English With Joshua";
+  receiverFullName: string = "English With Joshua";
   editorMsg;
-  receiverId;
-
+  currentUser: User
   constructor(
     private socket: SocketProvider,
     public loadingController: LoadingController,
-    private conversationService:ConversationService
+    private conversationService: ConversationService,
+    public alertController: AlertController,
+    public platform: Platform,
+    // private media: Media,
   ) {
     // this.listenToSocketUpdateMessageStatusEvent();
     // this.listenToSocketUpdateListMessagesEvent();
   }
 
   async ngOnInit() {
-    let date=new Date();
-    this.messages=[]
+    this.currentUser = JSON.parse(localStorage.getItem("user"))
+    this.messages = []
     const loading = await this.loadingController.create({
       spinner: 'bubbles',
       cssClass: 'custom-loader-class',
@@ -38,52 +42,81 @@ export class ConversationPage implements OnInit, OnDestroy {
     await loading.present();
     this.socket.connect();
     await this.loadingController.dismiss();
-    this.socket.on('connect',() => {
+    this.socket.on('connect', () => {
       // this.getConversationMessages();
       this.socket.emit('conversationRoomNumber', this.conversationId);
     });
   }
-  sendMessage() {
+  /**
+ * Gelen mesaja sistemsel(kim gönderdi,ne zaman gönderildi) gibi fieldları ekleyip mesaj ekleme methoduna gönderir
+ * @param {Message} message
+ */
+  sendTextMessage() {
     const message: Message = {
       message: this.editorMsg,
-      conversationId: this.conversationId,
-      receiversIds: [this.receiverId],
-      userIsSender: true,
       createdAt: new Date(),
+      userIsSender: true,
+      sender: this.currentUser,
+      type: 'text',
     };
-    let sendedMessage=this.editorMsg
     this.editorMsg = '';
+    this.sendMessage(message);
     this.onFocus();
     this.pushNewMessage(message);
-    this.conversationService.sendMessage(sendedMessage)
-    .subscribe(
-      res => {
-        this.messages.forEach(element => {
-          if (element.message === message.message && element.userIsSender) {
-            element.status = 'sent';
-          }
-        });
-        
-        console.log(res.generated_text)
-        this.messages.push({_id:"1",conversationId:"1",createdAt:message.createdAt,isRead:false,message:res.generated_text,purchaseId:1,receivers:[{receiverId:"2",isRead:false}],receiversIds:["2"],senderFullName:"bot",userIsSender:false,senderId:"1",status:"sent"})
-        this.socket.emit('update-messages-list');
-      }
-    );
-    
   }
 
+  /**
+ * Gelen parametreyi conversation servis içindeki mesaj gönderme methoduna gönderir, gelen mesajı mesaj listesine gönderir ve mesaj durumunu günceller
+ * @param {Message} message
+ */
+  sendMessage(message: Message) {
+    message.sender = JSON.parse(localStorage.getItem('user'));
+    this.conversationService.sendMessage(message)
+      .subscribe(
+        res => {
+          this.messages.forEach(element => {
+            if (element.status !== "seen" && element.userIsSender) {
+              element.status = 'sent';
+            }
+          });
+          let response = res.response
+          console.log(res)
+          response.userIsSender = false
+          this.messages.push({ _id: response.id, createdAt: response.createdAt, message: response.message, reciver: {}, status: "sent", type: response.type, sender: { _id:"BOT",firstName: 'joshua' }, userIsSender: false })
+          this.socket.emit('update-messages-list');
+        }
+      );
+  }
+  /**
+* Mesajın sesli bir şekilde okunmasını sağlar
+* @param {string} message
+*/
+  messageToSpeech(text: string) {
+    console.log(text)
+    TextToSpeech.speak(text)
+      .then(() => console.log('Success'))
+      .catch((reason: any) => console.log(reason));
+  }
+  /**
+ * Mesajın mesajlar listesine eklenmesini sağlar ve scroolu aşağı çeker
+ * @param {Message} message
+ */
   pushNewMessage(message: Message) {
     message.status = 'pending';
     this.messages.push(message);
     this.scrollToBottom();
   }
-
+  /**
+  * Text area üzerine focuslanmasını sağlar
+  */
   onFocus() {
     if (this.messageInput && this.messageInput.nativeElement) {
       this.messageInput.nativeElement.focus();
     }
   }
-
+  /**
+  * sayfayı en alta indirir
+  */
   scrollToBottom() {
     setTimeout(() => {
       if (this.content.scrollToBottom) {
@@ -91,73 +124,63 @@ export class ConversationPage implements OnInit, OnDestroy {
       }
     }, 200);
   }
-
+  /**
+   * Component silinirken çalışır. angular componentlerinde life cycle'lardan biridir. Bkz: https://angular.io/guide/lifecycle-hooks
+   */
   ngOnDestroy() {
     this.socket.disconnect();
     this.socket.removeAllListeners();
   }
-  // listenToSocketUpdateListMessagesEvent() {
-  //   this.socket.on('new-message', () => {
-  //     this.getConversationMessages();
-  //     this.scrollToBottom();
-  //   });
-  // }
+  /**
+  * Uygulamanın ses desteği olup olmadığını ve izinlerin olup olmadığını kontrol eder eğer herşey yolundaysa dinleme methodunu çalıştırır
+  */
+  startRecord() {
+    SpeechRecognition.isRecognitionAvailable().then((available: boolean) => {
+      if (available) {
+        SpeechRecognition.hasPermission().then((hasPermission: boolean) => {
+          if (hasPermission) {
+            this.startListening();
+          } else {
+            SpeechRecognition.requestPermission().then(
+              () => {
+                this.startListening()
+              },
+              () => { }
+            );
+          }
+        })
+      }
+    }).catch((error) => {
+      console.log(error)
+    });
+  }
+  /**
+  * Mikrofonu dinleyerek gelen verileri eşleştirir ve  en falza eşleşen (dizinin ilk elemanı) sonucu mesaj olarak gönderir
+  */
+  startListening() {
+    SpeechRecognition.startListening({ language: 'en-US', showPopup: true })
+      .subscribe(
+        (matches: Array<string>) => {
+          let message: Message = { type: "audio", createdAt: new Date(), message: matches[0], sender: this.currentUser, userIsSender: true, status: "pending" }
+          this.pushNewMessage(message);
+          this.sendMessage(message)
 
-  // listenToSocketUpdateMessageStatusEvent() {
-  //   this.socket.on('seen', (messageId) => {
-  //     const message = this.messages.find(msg => msg._id === messageId);
-  //     if (message) {
-  //       message.status = 'seen';
-  //     }
-  //   });
-  // }
+        },
+        (onerror) => console.log('error:', onerror)
+      )
+  }
+  /**
+  * Bir sorun oluştuğu zaman kullanıcıya uyarı mesajı gönderir
+  */
+  async alertForRecognizer() {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Alert',
+      subHeader: 'Subtitle',
+      message: 'This is an alert message.',
+      buttons: ['Cancel', 'Open Modal', 'Delete']
+    });
 
-  // getConversationMessages() {
-  //   const user = JSON.parse(localStorage.getItem('user'));
-  //   const queryParams = this.activatedRoute.snapshot.queryParams;
-  //   const receiver: User = JSON.parse(queryParams.receiver);
-  //   this.receiverFullName = receiver.firstName + ' ' + receiver.lastName;
-  //   this.receiverId = receiver._id;
-  //   if (user) {
-  //     const participants: string[] = [receiver._id, user.id];
-  //     this.conversationMessagesService.getConversationMessages(participants).subscribe(res => {
-  //       if (typeof res === 'string') {
-  //         this.conversationId = res;
-  //       } else {
-  //         this.messages = res.conversationMessages;
-  //         this.conversationId = res.conversationId;
-  //         this.messages = this.messages.map(message => {
-  //           return this.filterMessageAndUpdateStatus(message, user);
-  //         });
-  //         this.scrollToBottom();
-  //       }
-  //     });
-  //   }
-  // }
-
-  // filterMessageAndUpdateStatus(message: Message, user: any): Message {
-  //   message.senderFullName = message.sender.firstName + ' ' + message.sender.lastName;
-  //   if (message.sender._id === user.id) {
-  //     message.userIsSender = true;
-  //   }
-  //   message.receivers.forEach(receiver => {
-  //     if (!receiver.isRead && !message.userIsSender) {
-  //       this.conversationMessagesService.updateMessageStatusToRead(message._id, receiver.receiverId)
-  //         .subscribe(() => {
-  //           this.socket.emit('update-message-status', message._id);
-  //         });
-  //     }
-  //     if (message.userIsSender) {
-  //       if (receiver.isRead) {
-  //         message.status = 'seen';
-  //       } else {
-  //         message.status = 'sent';
-  //       }
-  //     }
-  //   });
-  //   return message;
-  // }
-
-  
-
+    await alert.present();
+  }
 }

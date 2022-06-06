@@ -39,41 +39,41 @@ export class SignupPage implements OnInit {
   }
 
   async signup() {
-    const loading = await this.loadingController.create({
-      spinner: 'bubbles',
-      cssClass: 'custom-loader-class',
-      showBackdrop: false,
-    });
-    await loading.present();
-    const params: {
-      email: string,
-      password: string,
-      lastName: string,
-      firstName: string,
-    } = this.signupForm.value;
-    this.userService.signup(params).subscribe(
-      async res => {
-        localStorage.setItem('chatToken', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-        this.events.publish('user:logged', res.user);
-        this.router.navigate(['home'], { replaceUrl: true });
-        await this.loadingController.dismiss();
-        const toast = await this.toastController.create({
-          color: 'success',
-          message: 'Login successful',
-          duration: 2000
-        });
-        toast.present();
-      },
-      async err => {
-        await this.loadingController.dismiss();
-        const toast = await this.toastController.create({
-          color: 'danger',
-          message: err.error.message,
-          duration: 2000
-        });
-        toast.present();
-      }
-    );
+    // const loading = await this.loadingController.create({
+    //   spinner: 'bubbles',
+    //   cssClass: 'custom-loader-class',
+    //   showBackdrop: false,
+    // });
+    // await loading.present();
+    // const params: {
+    //   email: string,
+    //   password: string,
+    //   lastName: string,
+    //   firstName: string,
+    // } = this.signupForm.value;
+    // this.userService.signup(params).subscribe(
+    //   async res => {
+    //     localStorage.setItem('chatToken', res.token);
+    //     localStorage.setItem('user', JSON.stringify(res.user));
+    //     this.events.publish('user:logged', res.user);
+    //     this.router.navigate(['home'], { replaceUrl: true });
+    //     await this.loadingController.dismiss();
+    //     const toast = await this.toastController.create({
+    //       color: 'success',
+    //       message: 'Login successful',
+    //       duration: 2000
+    //     });
+    //     toast.present();
+    //   },
+    //   async err => {
+    //     await this.loadingController.dismiss();
+    //     const toast = await this.toastController.create({
+    //       color: 'danger',
+    //       message: err.error.message,
+    //       duration: 2000
+    //     });
+    //     toast.present();
+    //   }
+    // );
   }
 }

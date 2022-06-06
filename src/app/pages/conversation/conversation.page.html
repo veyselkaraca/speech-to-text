@@ -10,16 +10,28 @@
 
 <ion-content #content id="content" class="ion-padding">
   <div class="message-wrap">
-    <div *ngFor="let message of messages" class="message" [class.right]=" message.userIsSender === true">
+    <div *ngFor="let message of messages" class="message" [class.right]=" message.sender._id !== 'BOT'">
       <div class="msg-detail">
-        <div class="msg-info">
-          <!-- Mesaj gönderenin adı -->
-          <p> {{message.senderFullName}}</p>
+        <div *ngIf="message.type=='text'">
+          <div class="msg-info">
+            <!-- Mesaj gönderenin adı -->
+            <p> {{message.senderFullName}}</p>
+          </div>
+          <div class="msg-content">
+            <!-- mesaj -->
+            <p>{{message.message}}</p>
+          </div>
         </div>
-        <div class="msg-content">
-          <!-- mesaj -->
-          <p>{{message.message}}</p>
+        <div *ngIf="message.type=='audio'">
+          <div class="msg-info">
+            <!-- Mesaj gönderenin adı -->
+            <p> {{message.senderFullName}}</p>
+          </div>
+          <div class="msg-content">
+            <p><mat-icon (click)="messageToSpeech(message.message)">play_circle_outline</mat-icon></p>
+          </div>
         </div>
+
       </div>
       <!-- mesajın durumu gönderiliyor, gönderildi, görüldü -->
       <div *ngIf="message.userIsSender" class="msg-status">
@@ -50,11 +62,11 @@
     <ion-textarea #chatInput maxlength="140" [(ngModel)]="editorMsg" (focusin)="onFocus()" clearInput=true>
     </ion-textarea>
     <!-- mesaj gönderme butonu -->
-    <ion-button class="send-button" size="large" fill="clear" (click)='sendMessage()' slot="end">
+    <ion-button class="send-button" color="primary" size="large" fill="clear" (click)="sendTextMessage()" slot="end">
       <ion-icon name="ios-send" ios="ios-send" md="md-send"></ion-icon>
     </ion-button>
     <!-- sesli mesaj gönderme butonu -->
-    <ion-button class="send-button" size="large" fill="clear" (click)='sendMessage()' slot="end">
+    <ion-button  class="send-button" size="large" fill="clear" (click)='startRecord()' slot="end">
       <ion-icon name="ios-mic" ios="ios-mic" md="md-mic"></ion-icon>
     </ion-button>
   </ion-item>

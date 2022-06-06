@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 // import { UrlService } from '../../services/url.service';
 // import { Message } from '../models/message';
 import { Observable } from 'rxjs/internal/Observable';
+import { Message } from 'src/app/models/message';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,11 @@ export class ConversationService {
   constructor(
     private http: HttpClient,
   ) { }
-
-  sendMessage(input: string){
-    const params = {
-        inputs:{
-          text:input
-        }
-    };
-    return this.http.post<any>(`https://api-inference.huggingface.co/models/r3dhummingbird/DialoGPT-medium-joshua`, params,);
+  /**
+  * Gelen mesajı heroku üzerindeki apiye gönderir
+  * @param (Message) message
+  */
+  sendMessage(message: Message){
+    return this.http.post<any>(`https://englishwithjoshu.herokuapp.com/api/sendMessage`, message,);
   }
 }

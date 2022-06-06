@@ -14,26 +14,17 @@ export class UserService {
     private urlService: UrlService,
     private http: HttpClient,
   ) { }
-
+  /**
+  * Giriş yapan kullanıcı bilgilerini heroku üzerindeki apiye gönderir
+  * @param (string) email
+  * @param (string) password
+  * @returns (Observable<User>)
+  */
   login(email: string, password: string): Observable<any> {
     const params = {
       email,
       password,
     };
-    return this.http.post(`${this.urlService.url}/api/v1/users/login`, params);
+    return this.http.post(`https://englishwithjoshu.herokuapp.com/api/login`, params);
   }
-
-  signup(params: {
-    email: string,
-    password: string,
-    lastName: string,
-    firstName: string,
-  }): Observable<any> {
-    return this.http.post(`${this.urlService.url}/api/v1/users/signup`, params);
-  }
-
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.urlService.url}/api/v1/users/`);
-  }
-
 }

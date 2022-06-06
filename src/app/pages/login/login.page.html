@@ -21,13 +21,15 @@
       </form>
     </ion-card-content>
   </ion-card>
-  <div class="sign-up ion-text-center">
+  <!-- <div class="sign-up ion-text-center">
     Don't have an account?
     <a class="link" href="" [routerLink]="['/signup']" routerDirection="forward">
       Register
     </a>
-  </div>
-  <ion-button type="submit" expand="block" (click)="login()" [disabled]="loginForm.invalid">
+  </div> -->
+  <ion-button type="submit" color="primary" expand="block" (click)="login()" 
+  [disabled]="loginForm.invalid" 
+  >
     Login
   </ion-button>
 </ion-content>

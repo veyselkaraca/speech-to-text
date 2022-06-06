@@ -12,7 +12,9 @@ import { ToastController, Events, LoadingController } from '@ionic/angular';
 export class LoginPage {
 
   loginForm: FormGroup;
-
+   /**
+  * Constructor
+  */
   constructor(
     private userService: UserService,
     private formBuilder: FormBuilder,
@@ -32,7 +34,9 @@ export class LoginPage {
       password: ['', Validators.required],
     });
   }
-
+  /**
+  * login formda doldurulan verileri alır ve userService'den login methoduna gönderir
+  */
   async login() {
     const loading = await this.loadingController.create({
       spinner: 'bubbles',
@@ -42,22 +46,32 @@ export class LoginPage {
     await loading.present();
     const email: string = this.loginForm.value.email;
     const password: string = this.loginForm.value.password;
-    // this.userService.login(email, password).subscribe(
-      if(email==="msamet0662@gmail.com"&&password==="msamet")
-      {
-        localStorage.setItem('chatToken', "token");
-        localStorage.setItem('user', JSON.stringify("res.user"));
-        this.events.publish('user:logged', "res.user");
-        this.router.navigate(['conversation'], { replaceUrl: true });
-        await this.loadingController.dismiss();
-        const toast = await this.toastController.create({
-          color: 'success',
-          message: 'Login successful',
-          duration: 2000
-        });
-        toast.present();
-      }else{
-        async err => {
+    this.userService.login(email, password).subscribe(
+      async res => {
+        if (res.user) {
+          localStorage.setItem('chatToken', "token");
+          localStorage.setItem('user', JSON.stringify(res.user));
+          this.events.publish('user:logged', res.user);
+          this.router.navigate(['conversation'], { replaceUrl: true });
+          await this.loadingController.dismiss();
+          const toast = await this.toastController.create({
+            color: 'success',
+            message: 'Login successful',
+            duration: 2000
+          });
+          toast.present();
+        }else{
+          await this.loadingController.dismiss();
+          const toast = await this.toastController.create({
+            color: 'danger',
+            message: 'Login failed',
+            duration: 2000
+          });
+          toast.present();
+        }
+
+      },
+      async err => {
           await this.loadingController.dismiss();
           const toast = await this.toastController.create({
             color: 'danger',
@@ -66,7 +80,6 @@ export class LoginPage {
           });
           toast.present();
         }
-      } 
+      );
   }
-
 }

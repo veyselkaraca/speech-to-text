@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpInterceptorService } from './services/http-interceptor.service';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const config: SocketIoConfig = { url: '', options: {} };
 
@@ -26,6 +27,7 @@ const config: SocketIoConfig = { url: '', options: {} };
     AppRoutingModule,
     HttpClientModule,
     SocketIoModule.forRoot(config),
+    BrowserAnimationsModule,
   ],
   providers: [
     StatusBar,

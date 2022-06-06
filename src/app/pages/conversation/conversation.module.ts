@@ -6,7 +6,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { ConversationPage } from './conversation.page';
-
+import {MediaCapture} from '@awesome-cordova-plugins/media-capture/ngx'
+import { MatIconModule } from '@angular/material';
 const routes: Routes = [
   {
     path: '',
@@ -19,8 +20,10 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    MatIconModule
   ],
-  declarations: [ConversationPage]
+  declarations: [ConversationPage],
+  providers: [MediaCapture]
 })
 export class ConversationPageModule {}
